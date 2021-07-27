@@ -1,7 +1,4 @@
 # Revealin
-<p align="center">
-  <img src="https://files.catbox.moe/rih99c.png">
-</p>
 
 ## Description
 

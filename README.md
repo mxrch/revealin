@@ -1,7 +1,5 @@
 # Revealin
 
-## Description
-
 **Uncover the full name of a target on Linkedin.**\
 It's just a little PoC exploiting a design flaw. *Useful for OSINT.*
 

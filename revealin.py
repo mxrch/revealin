@@ -5,13 +5,12 @@ import trio
 from lib.login import check_and_login
 from lib.target import get_needed_info
 from lib.search import *
-import creds
+from lib.utils import *
 
 
 async def main():
-    if not creds.email or not creds.password:
-        exit("[-] Please fill the credentials in creds.py.")
-
+    if len(sys.argv) < 2:
+        exit("[-] Please give as arg the linkedin handle / profile link of the target.\nExample : python3 revealin.py thert")
     link = sys.argv[1]
     if "linkedin.com/in/" in link:
         handle = link.strip("/").split("linkedin.com/in/")[-1].split("/")[0]
@@ -26,8 +25,7 @@ async def main():
     print(f"{vars(target)}\n")
 
     if len(target.last_name) != 2 or not target.last_name.endswith("."):
-        await as_client.aclose()
-        exit(f"[-] The target does not seems to have a masked name.\nName : {target.first_name} {target.last_name}")
+        await safe_exit(as_client, f"[-] The target does not seems to have a masked name.\nName : {target.first_name} {target.last_name}")
 
     await search_autocomplete(as_client, target)
 

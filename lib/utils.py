@@ -13,3 +13,7 @@ class TMPrinter():
 
 def get_charset():
     return list(map(chr, range(97, 123))) + [" "]
+
+async def safe_exit(as_client, msg):
+    await as_client.aclose()
+    exit(msg)

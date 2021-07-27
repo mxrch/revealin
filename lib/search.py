@@ -16,8 +16,7 @@ async def is_name_good(as_client, target, tmprinter, guessed_name, limiter):
             req = await as_client.get(f"https://www.linkedin.com/voyager/api/voyagerMessagingTypeaheadHits?keyword=%22{query}%22&q=typeaheadKeyword&types=List(PEOPLE)&start={start}&count=100")
             if req.status_code == 429:
                 tmprinter.clear()
-                await as_client.aclose()
-                exit("[-] Rate limit detected.")
+                await safe_exit(as_client, "[-] Rate limit detected.")
             data = json.loads(req.text)
             for element in data["elements"]:
                 member_urn = element["hitInfo"]['com.linkedin.voyager.typeahead.TypeaheadHitV2']["image"]["attributes"][0]["miniProfile"]["objectUrn"]
@@ -46,8 +45,7 @@ async def search_autocomplete(as_client, target):
             req = await as_client.get(f"https://www.linkedin.com/voyager/api/voyagerMessagingTypeaheadHits?keyword={query}&q=typeaheadKeyword&types=List(PEOPLE)&start={start}&count=100")
             if req.status_code == 429:
                 tmprinter.clear()
-                await as_client.aclose()
-                exit("[-] Rate limit detected.")
+                await safe_exit(as_client, "[-] Rate limit detected.")
             data = json.loads(req.text)
             for element in data["elements"]:
                 member_urn = element["hitInfo"]['com.linkedin.voyager.typeahead.TypeaheadHitV2']["image"]["attributes"][0]["miniProfile"]["objectUrn"]
@@ -79,7 +77,6 @@ async def search_autocomplete(as_client, target):
                     print("Space detected, checking if the extracted name is the full name...")
                     found_fullname = await is_name_good(as_client, target, tmprinter, guessed_name, limiter)
                     if found_fullname:
-                        await as_client.aclose()
-                        exit()
+                        await safe_exit(as_client, "")
 
                 break

@@ -2,8 +2,8 @@ import httpx
 import trio
 from bs4 import BeautifulSoup as bs
 
-import creds
 import config
+from lib.utils import *
 
 import json
 from pprint import pprint
@@ -28,6 +28,7 @@ async def check_session():
     if req.status_code == 200:
         return as_client
     else:
+        await as_client.aclose()
         return False
 
 async def check_and_login():
@@ -50,6 +51,9 @@ async def check_and_login():
     return as_client
 
 async def login():
+    email_login = input("Email => ")
+    pass_login = input("Password => ")
+
     as_client = httpx.AsyncClient()
 
     req = await as_client.get("https://www.linkedin.com")
@@ -59,16 +63,19 @@ async def login():
     csrf_login = input_login.attrs["value"]
 
     data = {
-        "session_key": creds.email,
+        "session_key": email_login,
         "loginCsrfParam": csrf_login,
-        "session_password": creds.password
+        "session_password": pass_login
     }
 
     req = await as_client.post("https://www.linkedin.com/checkpoint/lg/login-submit", allow_redirects=False, data=data)
-    if req.status_code == 200:
+    #import pdb; pdb.set_trace()
+    if (req.status_code == 200 and not "<title>LinkedIn Login, Sign in | LinkedIn</title>" in req.text) or \
+        (req.status_code == 303 and req.headers["location"].strip("/") == "https://www.linkedin.com/feed"):
         with open(config.cookies_file, "w") as f:
             f.write(json.dumps(dict(as_client.cookies)))
 
         return as_client
 
+    await as_client.aclose()
     return False

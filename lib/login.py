@@ -24,7 +24,7 @@ async def check_session():
 
     as_client = httpx.AsyncClient(cookies=cookies)
 
-    req = await as_client.get("https://www.linkedin.com/in/me", allow_redirects=False)
+    req = await as_client.get("https://www.linkedin.com/in/me")
     if req.status_code == 200:
         return as_client
     else:
@@ -42,8 +42,10 @@ async def check_and_login():
     else:
         print("[DEBUG] Cookie valid !")
 
+    
+    jsessionid = [v for k,v in as_client.cookies.__dict__["jar"].__dict__["_cookies"][".www.linkedin.com"]["/"].items() if k=="JSESSIONID"][0].value.strip('"')
     as_client.headers = {**config.headers, **{
-        "Csrf-Token": as_client.cookies["JSESSIONID"].strip('"'),
+        "Csrf-Token": jsessionid,
         "X-Restli-Protocol-Version": "2.0.0"
         }}
     as_client.timeout = config.timeout
@@ -68,8 +70,7 @@ async def login():
         "session_password": pass_login
     }
 
-    req = await as_client.post("https://www.linkedin.com/checkpoint/lg/login-submit", allow_redirects=False, data=data)
-    #import pdb; pdb.set_trace()
+    req = await as_client.post("https://www.linkedin.com/checkpoint/lg/login-submit", data=data)
     if (req.status_code == 200 and not "<title>LinkedIn Login, Sign in | LinkedIn</title>" in req.text) or \
         (req.status_code == 303 and req.headers["location"].strip("/") == "https://www.linkedin.com/feed"):
         with open(config.cookies_file, "w") as f:

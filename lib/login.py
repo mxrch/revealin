@@ -42,8 +42,7 @@ async def check_and_login():
     else:
         print("[DEBUG] Cookie valid !")
 
-    
-    jsessionid = [v for k,v in as_client.cookies.__dict__["jar"].__dict__["_cookies"][".www.linkedin.com"]["/"].items() if k=="JSESSIONID"][0].value.strip('"')
+    jsessionid = [v for k,v in as_client.cookies.__dict__["jar"].__dict__["_cookies"][""]["/"].items() if k=="JSESSIONID"][0].value.strip('"')
     as_client.headers = {**config.headers, **{
         "Csrf-Token": jsessionid,
         "X-Restli-Protocol-Version": "2.0.0"
